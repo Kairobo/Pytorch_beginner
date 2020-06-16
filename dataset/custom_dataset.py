@@ -50,14 +50,15 @@ class CustomDataset(Dataset):
     def get_data_from_dir(self, data_dir, split = 'train'):
         data_list = []
         self.data_dict[split] = {}
+        self.data_dict[split]['group_info'] = {}
 
         groups_l = os.listdir(data_dir)
         groups_l = [group_i for group_i in groups_l if group_i.isnumeric()]
 
         data_iter = 0
         for group_i in groups_l:
-            self.data_dict[split][str(group_i)] = {}
-            self.data_dict[split][str(group_i)]['img_list'] = []
+            self.data_dict[split]['group_info'][str(group_i)] = {}
+            self.data_dict[split]['group_info'][str(group_i)]['img_list'] = []
             data_dir_i = os.path.join(data_dir, str(group_i))
 
             imgs_l = os.listdir(data_dir_i)
@@ -68,13 +69,13 @@ class CustomDataset(Dataset):
                 self.data_dict[split][data_iter]['img_name'] = img_i
                 self.data_dict[split][data_iter]['img_dir'] = os.path.join(data_dir_i, img_i)
                 self.data_dict[split][data_iter]['label_no'] = group_i
-                self.data_dict[split][str(group_i)]['img_list'].append(img_i)
+                self.data_dict[split]['group_info'][str(group_i)]['img_list'].append(img_i)
                 data_list.append(data_iter)
                 data_iter += 1
 
         # print distribution
         for group_i in groups_l:
-            print("{}: class {} has {} imgs".format(split, str(group_i), len(self.data_dict[split][str(group_i)]['img_list'])))
+            print("{}: class {} has {} imgs".format(split, str(group_i), len(self.data_dict[split]['group_info'][str(group_i)]['img_list'])))
 
         return data_list
 
@@ -96,15 +97,17 @@ class CustomDataset(Dataset):
 
 
     def train(self):
+        self.split = 'train'
         self.data_list = self.train_data_list
 
 
     def test(self):
+        self.split = 'test'
         self.data_list = self.test_data_list
 
 
     def get_num_of_classes(self):
-        return len(self.data_dict[self.split])
+        return len(self.data_dict[self.split]['group_info'])
 
 
     def __len__(self):
